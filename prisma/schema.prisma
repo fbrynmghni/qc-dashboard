@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum MaterialCategory {
+  STRUCTURAL_SHAPES
+  STRIP_AND_BAR
+  PLATE
+  PIPE_AND_TUBING
+  WIRE
+  REINFORCING_BAR
+  FORGINGS_AND_CASTINGS
+}
+
+enum InspectionResult {
+  PASS
+  FAIL
+  NO_STANDARD
+}
+
+model Inspection {
+  id String @id @default(cuid())
+
+  // Header fields
+  companyName         String
+  materialName        String
+  spk                 String
+  materialDescription String
+  inspectionDate      DateTime @default(now())
+  quantityValue       Float
+  steelThicknessMm    Float
+  materialCategory    MaterialCategory
+
+  // 18 measurement points (3 rows x 6 columns), micrometers
+  r1c1 Float
+  r1c2 Float
+  r1c3 Float
+  r1c4 Float
+  r1c5 Float
+  r1c6 Float
+  r2c1 Float
+  r2c2 Float
+  r2c3 Float
+  r2c4 Float
+  r2c5 Float
+  r2c6 Float
+  r3c1 Float
+  r3c2 Float
+  r3c3 Float
+  r3c4 Float
+  r3c5 Float
+  r3c6 Float
+
+  // Computed at write-time, stored for fast filtering/sorting on the history page
+  averageThicknessUm Float
+  minimumRequiredUm  Float?
+  result             InspectionResult
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyName])
+  @@index([spk])
+  @@index([result])
+  @@index([createdAt])
+  @@index([inspectionDate])
+}

@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #1a1d21;
+  --color-paper: #f3f4f0;
+  --color-surface: #ffffff;
+  --color-steel: #d3d7dc;
+  --color-slate: #5b6470;
+  --color-stamp-red: #b3122b;
+  --color-blueprint: #1b3a6b;
+
+  --font-display: var(--font-big-shoulders);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+/* Native form controls (select, date/number inputs) otherwise follow the
+   OS color scheme, which can render dark-on-dark against this light theme
+   and make them unreadable. Pin the scheme so they always render light. */
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  /* Faint blueprint grid — this app's core reference document is a
+     technical standard (ASTM A123), so the page reads as drafting paper. */
+  background-image:
+    linear-gradient(rgba(27, 58, 107, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 58, 107, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
