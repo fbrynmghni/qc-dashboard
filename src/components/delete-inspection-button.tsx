@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteInspection } from "@/app/inspections/actions";
+import { deleteInspection } from "@/app/(app)/inspections/actions";
 
 export function DeleteInspectionButton({
   id,

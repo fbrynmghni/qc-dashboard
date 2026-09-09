@@ -5,7 +5,7 @@ import {
   createInspection,
   updateInspection,
   type CreateInspectionState,
-} from "@/app/inspections/actions";
+} from "@/app/(app)/inspections/actions";
 import {
   evaluateInspection,
   MATERIAL_CATEGORIES,

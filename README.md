@@ -9,6 +9,7 @@ A quality-control dashboard for hot-dip galvanizing coating-thickness inspection
 - Every inspection is saved and searchable by company, material, SPK, result, and date range.
 - Inspections can be edited or deleted after the fact.
 - Each inspection can be exported as a one-page PDF report.
+- The dashboard sits behind a simple email/password login ("QC Mini ERP"); there's no self-service signup, so users are provisioned with a CLI command.
 
 ## Stack
 
@@ -23,6 +24,8 @@ A quality-control dashboard for hot-dip galvanizing coating-thickness inspection
 ```bash
 npm install
 npx prisma migrate dev   # creates dev.db and applies migrations
+echo "AUTH_SECRET=\"$(openssl rand -hex 32)\"" >> .env   # signs login session cookies
+npm run user:create -- "email@perusahaan.com" "password" "Nama Lengkap"  # create the first login
 npm run dev              # http://localhost:3000
 ```
 
@@ -33,16 +36,21 @@ npm run dev          # dev server
 npm run build        # production build (also runs the TypeScript check)
 npm run lint         # eslint
 npm test             # vitest run (all tests)
+npm run user:create -- "email@perusahaan.com" "password" "Nama Lengkap"  # create/update a login
 npx prisma studio    # inspect/edit the SQLite database in a GUI
 ```
 
 ## Project structure
 
-- `src/app/inspections/` — the history list (`/inspections`), the new-inspection form (`/inspections/new`), a read-only detail view (`/inspections/[id]`), and an edit form (`/inspections/[id]/edit`).
+- `src/app/login/` — the public login page and its `login`/`logout` Server Actions.
+- `src/app/(app)/inspections/` — the history list (`/inspections`), the new-inspection form (`/inspections/new`), a read-only detail view (`/inspections/[id]`), and an edit form (`/inspections/[id]/edit`), all behind the dashboard header defined in `src/app/(app)/layout.tsx`.
 - `src/app/api/inspections/[id]/pdf/` — generates and streams the PDF report for one inspection.
+- `src/proxy.ts` — Next.js 16's Proxy (the renamed `middleware.ts`); redirects unauthenticated requests to `/login` and authenticated requests away from `/login`.
+- `src/lib/auth/` — password hashing (`scrypt`), signed session cookies, and the current-user lookup used to show the signed-in name in the header.
+- `scripts/create-user.ts` — the only way to provision a login; run via `npm run user:create`.
 - `src/lib/astm-a123.ts` — framework-agnostic ASTM A123 Table 1 lookup and evaluation logic; the single source of truth for the standard's numbers.
 - `src/lib/validation.ts` — the Zod schema shared by the client form and the server actions.
 - `src/lib/pdf/qc-report-document.tsx` — the PDF report layout.
-- `prisma/schema.prisma` — the `Inspection` model (SQLite).
+- `prisma/schema.prisma` — the `Inspection` and `User` models (SQLite).
 
 See `CLAUDE.md` for a deeper look at the architecture and the non-obvious gotchas (Prisma 7's driver-adapter requirement, Next.js 16's async `params`, a React 19 form-reset quirk, etc.).
