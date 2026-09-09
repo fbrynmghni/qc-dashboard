@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { evaluateInspection, MEASUREMENT_FIELD_NAMES } from "@/lib/astm-a123";
 import { parseInspectionFormData } from "@/lib/validation";
+import { getCurrentUser } from "@/lib/auth/current-user";
 
 export interface CreateInspectionState {
   error: string | null;
@@ -15,6 +16,10 @@ export async function createInspection(
   _prevState: CreateInspectionState,
   formData: FormData
 ): Promise<CreateInspectionState> {
+  if (!(await getCurrentUser())) {
+    return { error: "Sesi Anda telah berakhir, silakan masuk kembali.", fieldErrors: {} };
+  }
+
   const parsed = parseInspectionFormData(formData);
 
   if (!parsed.success) {
@@ -62,6 +67,10 @@ export async function createInspection(
 }
 
 export async function deleteInspection(id: string) {
+  if (!(await getCurrentUser())) {
+    redirect("/login");
+  }
+
   await prisma.inspection.delete({ where: { id } });
   revalidatePath("/inspections");
   redirect("/inspections");
@@ -72,6 +81,10 @@ export async function updateInspection(
   _prevState: CreateInspectionState,
   formData: FormData
 ): Promise<CreateInspectionState> {
+  if (!(await getCurrentUser())) {
+    return { error: "Sesi Anda telah berakhir, silakan masuk kembali.", fieldErrors: {} };
+  }
+
   const parsed = parseInspectionFormData(formData);
 
   if (!parsed.success) {
