@@ -3,12 +3,17 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/db";
 import { MEASUREMENT_FIELD_NAMES, type MaterialCategory } from "@/lib/astm-a123";
 import { QcReportDocument, type QcReportData } from "@/lib/pdf/qc-report-document";
+import { getCurrentUser } from "@/lib/auth/current-user";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(_request: Request, { params }: RouteParams) {
+  if (!(await getCurrentUser())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { id } = await params;
   const inspection = await prisma.inspection.findUnique({ where: { id } });
 
